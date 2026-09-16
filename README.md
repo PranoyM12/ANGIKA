@@ -1,10 +1,10 @@
 
 
-# NatyaNirmiti: Subtitle Generation for Bharatanatyam Poses
+# Angika: Bharatanatyam Pose Recognition
 
 ## Overview
 
-NatyaNirmiti recognizes and classifies Bharatanatyam dance poses from images using **Google MediaPipe** for 3D pose landmark extraction and an **SVM classifier**. The pipeline achieves **83% accuracy** across 9 pose classes.
+**Angika** recognizes and classifies Bharatanatyam dance poses from images using **Google MediaPipe** for 3D pose landmark extraction and an **SVM classifier**. The pipeline achieves **83% accuracy** across 9 pose classes.
 
 ## Table of Contents
 
@@ -40,8 +40,8 @@ NatyaNirmiti/
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/Pradeep1205k/NatyaNirmithi-Bharatnatya-subtitle-generation.git
-    cd NatyaNirmithi-Bharatnatya-subtitle-generation
+    git clone https://github.com/PranoyM12/Angika.git
+    cd Angika
     ```
 
 2. **Create and activate the virtual environment**:
