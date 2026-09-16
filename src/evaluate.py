@@ -9,6 +9,6 @@ def evaluate_model(model_path, features, labels):
     print(classification_report(labels, y_pred))
 
 if __name__ == "__main__":
-    features = np.load('data/features.npy')
-    labels = np.load('data/labels.npy')
-    evaluate_model('models/svm_model.pkl', features, labels)
+    features = np.load('data/mp_features.npy')
+    labels = np.load('data/mp_labels.npy')
+    evaluate_model('models/mp_svm_model.pkl', features, labels)

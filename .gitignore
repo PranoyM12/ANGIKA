@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+bharatanatyam-env/
+venv/
+env/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated data files (too large for git — teammates regenerate via feature_extraction.py)
+data/features.npy
+data/labels.npy
+data/mp_features.npy
+data/mp_labels.npy
+data/processed/
+
+# Trained model binaries (large — teammates retrain via train.py)
+models/*.pkl
+
+# MediaPipe model asset (downloaded separately — see README)
+models/pose_landmarker.task
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace

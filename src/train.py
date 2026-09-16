@@ -14,8 +14,8 @@ def train_svm(features, labels):
     return clf
 
 if __name__ == "__main__":
-    features = np.load('data/features.npy')
-    labels = np.load('data/labels.npy')
+    features = np.load('data/mp_features.npy')
+    labels = np.load('data/mp_labels.npy')
     model = train_svm(features, labels)
     import joblib
-    joblib.dump(model, 'models/svm_model.pkl')
+    joblib.dump(model, 'models/mp_svm_model.pkl')

@@ -1,23 +1,49 @@
-# src/feature_extraction.py
 import cv2
 import os
 import numpy as np
-from skimage.feature import hog
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-def extract_hog_features(image_dir):
+def extract_mediapipe_features(image_dir):
     features = []
     labels = []
+    
+    model_path = os.path.abspath('models/pose_landmarker.task')
+    base_options = python.BaseOptions(model_asset_path=model_path)
+    options = vision.PoseLandmarkerOptions(
+        base_options=base_options,
+        output_segmentation_masks=False)
+    detector = vision.PoseLandmarker.create_from_options(options)
+    
     for pose in os.listdir(image_dir):
         pose_dir = os.path.join(image_dir, pose)
+        if not os.path.isdir(pose_dir):
+            continue
         for img_name in os.listdir(pose_dir):
             img_path = os.path.join(pose_dir, img_name)
-            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-            hog_feature = hog(img, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=False)
-            features.append(hog_feature)
-            labels.append(pose)
+            
+            try:
+                mp_image = mp.Image.create_from_file(img_path)
+            except Exception as e:
+                continue
+                
+            detection_result = detector.detect(mp_image)
+            
+            if len(detection_result.pose_landmarks) > 0:
+                landmarks_list = detection_result.pose_landmarks[0]
+                landmarks = []
+                for landmark in landmarks_list:
+                    landmarks.extend([landmark.x, landmark.y, landmark.z])
+                features.append(landmarks)
+                labels.append(pose)
+            else:
+                print(f"No pose detected in {img_path}")
+                
     return np.array(features), np.array(labels)
 
 if __name__ == "__main__":
-    features, labels = extract_hog_features('data/processed')
-    np.save('data/features.npy', features)
-    np.save('data/labels.npy', labels)
+    features, labels = extract_mediapipe_features('data/raw')
+    print(f"Successfully extracted features for {len(features)} images.")
+    np.save('data/mp_features.npy', features)
+    np.save('data/mp_labels.npy', labels)

@@ -1,10 +1,10 @@
 
 
-# NatyaNirmiti: Subtitle Generation for Bharatanatyam Poses                                                                       
+# NatyaNirmiti: Subtitle Generation for Bharatanatyam Poses
 
 ## Overview
 
-NatyaNirmiti aims to recognize and classify Bharatanatyam dance poses from images using machine learning techniques. The project processes video data, extracts features, trains a model, evaluates it, and makes predictions to identify dance poses.
+NatyaNirmiti recognizes and classifies Bharatanatyam dance poses from images using **Google MediaPipe** for 3D pose landmark extraction and an **SVM classifier**. The pipeline achieves **83% accuracy** across 9 pose classes.
 
 ## Table of Contents
 
@@ -23,18 +23,16 @@ NatyaNirmiti aims to recognize and classify Bharatanatyam dance poses from image
 
 ```plaintext
 NatyaNirmiti/
-├── bharatanatyam-env/  # Virtual environment
-├── data/               # Data folder
-│   ├── raw/            # Raw images and videos
-│   └── processed/      # Processed images
-├── models/             # Trained models
-├── src/                # Source scripts
-│   ├── preprocess.py   # Preprocessing script
-│   ├── feature_extraction.py  # Feature extraction script
-│   ├── train.py        # Training script
-│   ├── evaluate.py     # Evaluation script
-│   └── predict.py      # Prediction script
-└── README.md           # This README file
+├── data/
+│   └── raw/            # Raw images organized by pose class (e.g. data/raw/Nataraj/)
+├── models/             # Trained models + MediaPipe asset (not tracked in git — see models/README.md)
+├── src/
+│   ├── preprocess.py          # Extracts frames from videos into data/raw/
+│   ├── feature_extraction.py  # MediaPipe landmark extraction -> data/mp_features.npy
+│   ├── train.py               # Trains SVM -> models/mp_svm_model.pkl
+│   ├── evaluate.py            # Prints accuracy + per-class report
+│   └── predict.py             # CLI + GUI pose predictor with skeleton overlay
+└── README.md
 ```
 
 ## Setup
@@ -42,8 +40,8 @@ NatyaNirmiti/
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/your-repo/NatyaNirmiti.git
-    cd NatyaNirmiti
+    git clone https://github.com/Pradeep1205k/NatyaNirmithi-Bharatnatya-subtitle-generation.git
+    cd NatyaNirmithi-Bharatnatya-subtitle-generation
     ```
 
 2. **Create and activate the virtual environment**:
@@ -52,25 +50,40 @@ NatyaNirmiti/
     python -m venv bharatanatyam-env
     ```
 
-    - **For PowerShell**:
+    - **PowerShell (Windows)**:
 
       ```powershell
       .\bharatanatyam-env\Scripts\Activate.ps1
       ```
 
-    - **For Command Prompt**:
+    - **Bash (Linux/macOS)**:
 
-      ```cmd
-      bharatanatyam-env\Scripts\activate.bat
+      ```bash
+      source bharatanatyam-env/bin/activate
       ```
 
-3. **Install the required packages**:
+3. **Install dependencies**:
 
     ```bash
     pip install -r requirements.txt
     ```
 
+4. **Download the MediaPipe Pose Landmarker model** into `models/`:
+
+    ```powershell
+    # PowerShell (Windows)
+    Invoke-WebRequest -Uri "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task" -OutFile "models/pose_landmarker.task"
+    ```
+
+    ```bash
+    # Linux / macOS
+    curl -o models/pose_landmarker.task \
+      "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
+    ```
+
 ## Running the Scripts
+
+> **All commands must be run from the project root** with the virtual environment activated.
 
 ### Preprocess Images
 
@@ -78,7 +91,7 @@ NatyaNirmiti/
 python src/preprocess.py
 ```
 
-This script converts raw video files into RGB format images and extracts frames.
+Extracts video frames as RGB images into `data/raw/<pose_class>/`.
 
 ### Extract Features
 
@@ -86,7 +99,7 @@ This script converts raw video files into RGB format images and extracts frames.
 python src/feature_extraction.py
 ```
 
-This script computes Motion History Images (MHI) and Histograms of Gradient of MHI (HoGMHI) as features from the processed images.
+Runs MediaPipe on every image in `data/raw/` to detect 33 body landmarks (99 features per image: x, y, z per joint). Saves to `data/mp_features.npy` and `data/mp_labels.npy`.
 
 ### Train Model
 
@@ -94,7 +107,7 @@ This script computes Motion History Images (MHI) and Histograms of Gradient of M
 python src/train.py
 ```
 
-This script trains the model using the extracted features and saves the trained model.
+Trains an SVM on the landmark features and saves to `models/mp_svm_model.pkl`.
 
 ### Evaluate Model
 
@@ -102,17 +115,24 @@ This script trains the model using the extracted features and saves the trained 
 python src/evaluate.py
 ```
 
-This script evaluates the performance of the trained model using accuracy and other metrics.
+Prints overall accuracy and a per-class precision/recall/F1 report.
 
 ### Make Predictions
 
+**CLI mode** (shows result + skeleton overlay window):
+
 ```bash
-python src/predict.py --image_path <path_to_image>
+python src/predict.py --image_path path/to/image.jpg
 ```
 
-This script predicts the Bharatanatyam pose for a given input image.
+**GUI mode** (interactive file picker):
+
+```bash
+python src/predict.py
+```
 
 ## Next Steps
+
 
 1. **Collect more data**: More data will help improve the model's accuracy.
 2. **Experiment with CNNs**: Implement a Convolutional Neural Network (CNN) for better performance.
